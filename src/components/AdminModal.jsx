@@ -11,12 +11,20 @@ export default function AdminModal({ isOpen, onClose, onRefresh }) {
     if (!isOpen) return null;
 
     const handleLogin = async () => {
-        try {
-            await adminLogin(password);
-            setAuth(true);
-            setStatus('');
-        } catch (err) { setStatus('Invalid password'); }
-    };
+    try {
+        await adminLogin(password);
+        setAuth(true);
+        setStatus('');
+    } catch (err) { 
+        // Differentiate between an actual 401 Unauthorized and a Network/CORS error
+        if (err.response && err.response.status === 401) {
+            setStatus('Invalid password');
+        } else {
+            setStatus(`Connection error: ${err.message}`);
+            console.error("Login Error details:", err);
+        }
+    }
+};
 
     const handleUpload = async () => {
         if (!file) return;
