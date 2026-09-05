@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getHQs, getCLIs, getPerformance } from './services/api';
-import ChartViewer from './components/ChartViewer';
+import ChartViewer, { METRICS } from './components/ChartViewer';
 import AdminModal from './components/AdminModal';
 import { Settings, Download, FileText, Activity } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
@@ -14,7 +14,7 @@ export default function App() {
     const reportRef = useRef();
 
     const [filters, setFilters] = useState({
-        hq: '', cli: '', startMonth: '2023-01-01', endMonth: '2026-12-31', metric: 'ALL', chartType: 'line'
+    hq: '', cli: '', startMonth: '2023-01-01', endMonth: '2026-12-31', metric: '', chartType: 'line'
     });
 
     const fetchData = async () => {
@@ -90,11 +90,17 @@ export default function App() {
                     </div>
                     <div className="flex flex-col gap-1 min-w-[150px]">
                         <label className="text-xs font-semibold text-slate-400 uppercase">Metric</label>
-                        <select className="bg-slate-900 border border-slate-600 rounded-lg p-2.5 outline-none focus:border-cyan-500" value={filters.metric} onChange={e => setFilters({...filters, metric: e.target.value})}>
-                            <option value="ALL">ALL METRICS</option>
-                            <option value="total_duty_hrs">Total Duty Hrs</option>
-                            <option value="ambush_checks">Ambush Checks</option>
-                        </select>
+                            <select className="bg-slate-900 border border-slate-600 rounded-lg p-2.5 outline-none focus:border-cyan-500" 
+                                value={filters.metric} 
+                                onChange={e => setFilters({...filters, metric: e.target.value})}>
+                                <option value="" disabled>Select a metric...</option>
+        
+                                    {METRICS.map(m => (
+                                    <option key={m.key} value={m.key}>{m.label}</option>
+                                    ))}
+        
+                                <option value="ALL">ALL METRICS</option>
+                            </select>
                     </div>
                     <div className="flex gap-2">
                         <button onClick={() => setFilters({...filters, chartType: 'line'})} className={`px-4 py-2.5 rounded-lg font-medium border ${filters.chartType === 'line' ? 'bg-cyan-600 border-cyan-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-400'}`}>Line</button>
@@ -124,7 +130,14 @@ export default function App() {
                         </div>
 
                         {/* Chart Area */}
-                        <ChartViewer data={data} chartType={filters.chartType} selectedMetric={filters.metric} />
+                        {!filters.metric ? (
+                            <div className="h-[40vh] flex flex-col items-center justify-center text-slate-500 border-2 border-dashed border-slate-800 rounded-2xl mt-8">
+                                <Activity size={48} className="mb-4 opacity-20" />
+                                <p className="text-lg font-medium">Please select a metric from the dropdown to view the chart</p>
+                            </div>
+                        ) : (
+                            <ChartViewer data={data} chartType={filters.chartType} selectedMetric={filters.metric} />
+                        )}
                     </div>
                 )}
             </div>

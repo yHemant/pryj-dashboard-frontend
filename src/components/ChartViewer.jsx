@@ -1,11 +1,33 @@
 import React from 'react';
 import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
-const METRICS = [
-    { key: 'total_duty_hrs', label: 'Total Duty Hrs' }, { key: 'total_fp_hrs', label: 'Total FP Hrs' },
-    { key: 'ambush_checks', label: 'Ambush Checks' }, { key: 'abnormality_reported', label: 'Abnormalities' },
-    { key: 'dfc_fp', label: 'DFC FP' }, { key: 'leave_days', label: 'Leave Days' },
-    { key: 'grading_due', label: 'Grading Due' }, { key: 'counseling_due', label: 'Counseling Due' }
+export const METRICS = [
+    { key: 'total_duty_hrs', label: 'Total Duty Hrs' },
+    { key: 'total_fp_hrs', label: 'Total FP Hrs' },
+    { key: 'night_duty_hrs', label: 'Night Duty Hrs' },
+    { key: 'night_fp_hrs', label: 'Night FP Hrs' },
+    { key: 'day_fp_freight', label: 'Day FP - Freight' },
+    { key: 'day_fp_coaching', label: 'Day FP - Coaching' },
+    { key: 'day_fp_other', label: 'Day FP - Other' },
+    { key: 'night_fp_freight', label: 'Night FP - Freight' },
+    { key: 'night_fp_coaching', label: 'Night FP - Coaching' },
+    { key: 'night_fp_other', label: 'Night FP - Other' },
+    { key: 'dfc_fp', label: 'DFC FP' },
+    { key: 'pct_dfc_fp', label: '% of DFC FP' },
+    { key: 'ambush_checks', label: 'Ambush Checks' },
+    { key: 'ipams_ambush_check', label: 'IPAMS Ambush Check' },
+    { key: 'leave_days', label: 'Leave Days' },
+    { key: 'abnormality_reported', label: 'Abnormality Reported' },
+    { key: 'grading_due', label: 'Grading Due' },
+    { key: 'counseling_due', label: 'Counseling Due' },
+    { key: 'fp_due', label: 'FP Due' },
+    { key: 'full_beat_fp_due', label: 'Full Beat FP Due' },
+    { key: 'lp_fp', label: 'LP Foot Plate (FP)' },
+    { key: 'fp_detail_filled', label: 'FP Detail Filled' },
+    { key: 'lp_attribute', label: 'LP Attribute' },
+    { key: 'alp_attribute', label: 'ALP Attribute' },
+    { key: 'due_lp', label: 'Due LP' },
+    { key: 'due_alp', label: 'Due ALP' }
 ];
 
 const decimalToHoursStr = (decimal) => {
