@@ -19,8 +19,25 @@ export default function App() {
 
     const fetchData = async () => {
         if (!filters.cli) return;
-        const res = await getPerformance(filters.cli, filters.startMonth, filters.endMonth);
-        setData(res.data);
+        try {
+            const res = await getPerformance(filters.cli, filters.startMonth, filters.endMonth);
+            
+            // PostgreSQL returns NUMERIC types as strings. Recharts requires actual numbers.
+            const parsedData = res.data.map(row => {
+                const numericRow = { ...row };
+                Object.keys(numericRow).forEach(key => {
+                    // Ignore text and date columns, convert everything else to Number
+                    if (!['id', 'month', 'cli_id', 'cli_name', 'cli_hq'].includes(key)) {
+                        numericRow[key] = Number(numericRow[key]) || 0;
+                    }
+                });
+                return numericRow;
+            });
+            
+            setData(parsedData);
+        } catch (error) {
+            console.error("Failed to fetch performance data:", error);
+        }
     };
 
     useEffect(() => { getHQs().then(res => setHqs(res.data)); }, []);
