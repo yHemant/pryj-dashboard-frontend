@@ -44,7 +44,6 @@ const CustomTooltip = ({ active, payload, label }) => {
         const isTime = key.includes('hrs');
         return (
             <div className="bg-slate-800 border border-slate-700 p-3 rounded-lg shadow-xl z-50">
-                {/* Format the label nicely (e.g., 2026-07) */}
                 <p className="text-slate-300 mb-1">{String(label).substring(0,7)}</p>
                 <p className="text-cyan-400 font-bold text-lg">
                     {isTime ? decimalToHoursStr(val) : val}
@@ -55,9 +54,28 @@ const CustomTooltip = ({ active, payload, label }) => {
     return null;
 };
 
+// Custom SVG component to render 3D bars
+const Custom3DBar = (props) => {
+    const { fill, x, y, width, height } = props;
+    const depth = 8; // Adjust this value to make the 3D effect deeper or shallower
+
+    // Prevent rendering artifacts for 0 values
+    if (!height || height <= 0) return null;
+
+    return (
+        <g>
+            {/* Top Face */}
+            <path d={`M${x},${y} L${x + depth},${y - depth} L${x + width + depth},${y - depth} L${x + width},${y} Z`} fill={fill} opacity={0.6} />
+            {/* Right Side Face */}
+            <path d={`M${x + width},${y} L${x + width + depth},${y - depth} L${x + width + depth},${y + height - depth} L${x + width},${y + height} Z`} fill={fill} opacity={0.8} />
+            {/* Front Face */}
+            <rect x={x} y={y} width={width} height={height} fill={fill} />
+        </g>
+    );
+};
+
 export default function ChartViewer({ data, chartType, selectedMetric }) {
     const metricsToRender = selectedMetric === 'ALL' ? METRICS : METRICS.filter(m => m.key === selectedMetric);
-
     const formatXAxis = (str) => str ? String(str).substring(0, 7) : '';
 
     return (
@@ -66,11 +84,10 @@ export default function ChartViewer({ data, chartType, selectedMetric }) {
                 <div key={metric.key} className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-4">
                     <h3 className="text-slate-300 font-semibold mb-6">{metric.label}</h3>
                     
-                    {/* BUG FIX: Removed flex wrappers. Added explicit height to ResponsiveContainer */}
                     <div style={{ width: '100%', height: '280px' }}>
                         <ResponsiveContainer width="100%" height="100%">
                             {chartType === 'line' ? (
-                                <AreaChart data={data} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
+                                <AreaChart data={data} margin={{ top: 15, right: 20, left: -20, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id={`color${metric.key}`} x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4}/>
@@ -80,12 +97,13 @@ export default function ChartViewer({ data, chartType, selectedMetric }) {
                                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                                     <XAxis dataKey="month" stroke="#94a3b8" tickFormatter={formatXAxis} minTickGap={20} />
                                     <YAxis stroke="#94a3b8" />
-                                    <Tooltip content={<CustomTooltip />} />
-                                    {/* isAnimationActive={false} prevents another common Recharts bug on initial load */}
-                                    <Area type="monotone" dataKey={metric.key} stroke="#06b6d4" strokeWidth={3} fillOpacity={1} fill={`url(#color${metric.key})`} isAnimationActive={false} />
+                                    <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#475569', strokeWidth: 1, strokeDasharray: '3 3' }} />
+                                    
+                                    {/* Changed type from "monotone" to "linear" for straight lines */}
+                                    <Area type="linear" dataKey={metric.key} stroke="#06b6d4" strokeWidth={3} fillOpacity={1} fill={`url(#color${metric.key})`} isAnimationActive={false} />
                                 </AreaChart>
                             ) : (
-                                <BarChart data={data} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
+                                <BarChart data={data} margin={{ top: 15, right: 30, left: -20, bottom: 0 }}>
                                      <defs>
                                         <linearGradient id={`bar${metric.key}`} x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="0%" stopColor="#34d399" />
@@ -95,8 +113,10 @@ export default function ChartViewer({ data, chartType, selectedMetric }) {
                                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                                     <XAxis dataKey="month" stroke="#94a3b8" tickFormatter={formatXAxis} minTickGap={20} />
                                     <YAxis stroke="#94a3b8" />
-                                    <Tooltip content={<CustomTooltip />} />
-                                    <Bar dataKey={metric.key} fill={`url(#bar${metric.key})`} radius={[4, 4, 0, 0]} isAnimationActive={false} />
+                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: '#334155', opacity: 0.4 }} />
+                                    
+                                    {/* Applied the custom 3D shape */}
+                                    <Bar dataKey={metric.key} shape={<Custom3DBar />} fill={`url(#bar${metric.key})`} isAnimationActive={false} />
                                 </BarChart>
                             )}
                         </ResponsiveContainer>
