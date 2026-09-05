@@ -6,10 +6,10 @@ const METRICS = [
     { key: 'ambush_checks', label: 'Ambush Checks' }, { key: 'abnormality_reported', label: 'Abnormalities' },
     { key: 'dfc_fp', label: 'DFC FP' }, { key: 'leave_days', label: 'Leave Days' },
     { key: 'grading_due', label: 'Grading Due' }, { key: 'counseling_due', label: 'Counseling Due' }
-    // Add rest of metrics here for brevity
 ];
 
 const decimalToHoursStr = (decimal) => {
+    if (isNaN(decimal)) return "0h 0m";
     const hrs = Math.floor(decimal);
     const mins = Math.round((decimal - hrs) * 60);
     return `${hrs}h ${mins}m`;
@@ -21,8 +21,9 @@ const CustomTooltip = ({ active, payload, label }) => {
         const key = payload[0].dataKey;
         const isTime = key.includes('hrs');
         return (
-            <div className="bg-slate-800 border border-slate-700 p-3 rounded-lg shadow-xl">
-                <p className="text-slate-300 mb-1">{label}</p>
+            <div className="bg-slate-800 border border-slate-700 p-3 rounded-lg shadow-xl z-50">
+                {/* Format the label nicely (e.g., 2026-07) */}
+                <p className="text-slate-300 mb-1">{String(label).substring(0,7)}</p>
                 <p className="text-cyan-400 font-bold text-lg">
                     {isTime ? decimalToHoursStr(val) : val}
                 </p>
@@ -35,29 +36,34 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function ChartViewer({ data, chartType, selectedMetric }) {
     const metricsToRender = selectedMetric === 'ALL' ? METRICS : METRICS.filter(m => m.key === selectedMetric);
 
+    const formatXAxis = (str) => str ? String(str).substring(0, 7) : '';
+
     return (
         <div className={`grid gap-6 ${selectedMetric === 'ALL' ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1'}`}>
             {metricsToRender.map(metric => (
-                <div key={metric.key} className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-4 h-80 flex flex-col">
-                    <h3 className="text-slate-300 font-semibold mb-4">{metric.label}</h3>
-                    <div className="flex-1">
+                <div key={metric.key} className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-4">
+                    <h3 className="text-slate-300 font-semibold mb-6">{metric.label}</h3>
+                    
+                    {/* BUG FIX: Removed flex wrappers. Added explicit height to ResponsiveContainer */}
+                    <div style={{ width: '100%', height: '280px' }}>
                         <ResponsiveContainer width="100%" height="100%">
                             {chartType === 'line' ? (
-                                <AreaChart data={data}>
+                                <AreaChart data={data} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id={`color${metric.key}`} x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3}/>
+                                            <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4}/>
                                             <stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/>
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                                    <XAxis dataKey="month" stroke="#94a3b8" tickFormatter={str => str.substring(0,7)} />
+                                    <XAxis dataKey="month" stroke="#94a3b8" tickFormatter={formatXAxis} minTickGap={20} />
                                     <YAxis stroke="#94a3b8" />
                                     <Tooltip content={<CustomTooltip />} />
-                                    <Area type="monotone" dataKey={metric.key} stroke="#06b6d4" strokeWidth={3} fillOpacity={1} fill={`url(#color${metric.key})`} />
+                                    {/* isAnimationActive={false} prevents another common Recharts bug on initial load */}
+                                    <Area type="monotone" dataKey={metric.key} stroke="#06b6d4" strokeWidth={3} fillOpacity={1} fill={`url(#color${metric.key})`} isAnimationActive={false} />
                                 </AreaChart>
                             ) : (
-                                <BarChart data={data}>
+                                <BarChart data={data} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
                                      <defs>
                                         <linearGradient id={`bar${metric.key}`} x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="0%" stopColor="#34d399" />
@@ -65,10 +71,10 @@ export default function ChartViewer({ data, chartType, selectedMetric }) {
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                                    <XAxis dataKey="month" stroke="#94a3b8" tickFormatter={str => str.substring(0,7)} />
+                                    <XAxis dataKey="month" stroke="#94a3b8" tickFormatter={formatXAxis} minTickGap={20} />
                                     <YAxis stroke="#94a3b8" />
                                     <Tooltip content={<CustomTooltip />} />
-                                    <Bar dataKey={metric.key} fill={`url(#bar${metric.key})`} radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey={metric.key} fill={`url(#bar${metric.key})`} radius={[4, 4, 0, 0]} isAnimationActive={false} />
                                 </BarChart>
                             )}
                         </ResponsiveContainer>
