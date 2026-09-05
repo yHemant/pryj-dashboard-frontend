@@ -22,18 +22,20 @@ export default function App() {
         try {
             const res = await getPerformance(filters.cli, filters.startMonth, filters.endMonth);
             
-            // PostgreSQL returns NUMERIC types as strings. Recharts requires actual numbers.
+            // Force every metric column into a strict Javascript Number
             const parsedData = res.data.map(row => {
                 const numericRow = { ...row };
                 Object.keys(numericRow).forEach(key => {
-                    // Ignore text and date columns, convert everything else to Number
+                    // Ignore text/date columns
                     if (!['id', 'month', 'cli_id', 'cli_name', 'cli_hq'].includes(key)) {
-                        numericRow[key] = Number(numericRow[key]) || 0;
+                        // Force conversion and fallback to 0 if NaN
+                        numericRow[key] = parseFloat(numericRow[key]) || 0;
                     }
                 });
                 return numericRow;
             });
             
+            console.log("Chart Data Check:", parsedData); // Check your browser console!
             setData(parsedData);
         } catch (error) {
             console.error("Failed to fetch performance data:", error);
