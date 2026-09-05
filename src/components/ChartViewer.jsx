@@ -57,19 +57,78 @@ const CustomTooltip = ({ active, payload, label }) => {
 // Custom SVG component to render 3D bars
 const Custom3DBar = (props) => {
     const { fill, x, y, width, height } = props;
-    const depth = 8; // Adjust this value to make the 3D effect deeper or shallower
+    const depth = 10; // Slightly deeper for more 3D feel
 
     // Prevent rendering artifacts for 0 values
     if (!height || height <= 0) return null;
 
+    // Derive shades from the base fill
+    // If fill is a hex like "#3b82f6", we can lighten/darken it.
+    // For simplicity, we’ll use fixed overlays; you can replace with dynamic colors if needed.
+    const topColor = "white";
+    const sideColor = "rgba(0,0,0,0.25)";
+    const frontHighlight = "rgba(255,255,255,0.15)";
+
     return (
         <g>
-            {/* Top Face */}
-            <path d={`M${x},${y} L${x + depth},${y - depth} L${x + width + depth},${y - depth} L${x + width},${y} Z`} fill={fill} opacity={0.6} />
-            {/* Right Side Face */}
-            <path d={`M${x + width},${y} L${x + width + depth},${y - depth} L${x + width + depth},${y + height - depth} L${x + width},${y + height} Z`} fill={fill} opacity={0.8} />
+            {/* Top Face - lighter to simulate light from above */}
+            <path
+                d={`M${x},${y} 
+                   L${x + depth},${y - depth} 
+                   L${x + width + depth},${y - depth} 
+                   L${x + width},${y} Z`}
+                fill={fill}
+                opacity={0.9}
+            />
+            <path
+                d={`M${x},${y} 
+                   L${x + depth},${y - depth} 
+                   L${x + width + depth},${y - depth} 
+                   L${x + width},${y} Z`}
+                fill={topColor}
+                opacity={0.35}
+            />
+
+            {/* Right Side Face - darker for depth */}
+            <path
+                d={`M${x + width},${y} 
+                   L${x + width + depth},${y - depth} 
+                   L${x + width + depth},${y + height - depth} 
+                   L${x + width},${y + height} Z`}
+                fill={fill}
+                opacity={0.85}
+            />
+            <path
+                d={`M${x + width},${y} 
+                   L${x + width + depth},${y - depth} 
+                   L${x + width + depth},${y + height - depth} 
+                   L${x + width},${y + height} Z`}
+                fill={sideColor}
+                opacity={0.6}
+            />
+
             {/* Front Face */}
             <rect x={x} y={y} width={width} height={height} fill={fill} />
+
+            {/* Subtle front highlight (top edge) */}
+            <rect
+                x={x}
+                y={y}
+                width={width}
+                height={Math.max(4, height * 0.08)}
+                fill={frontHighlight}
+            />
+
+            {/* Optional thin border for crispness */}
+            <rect
+                x={x}
+                y={y}
+                width={width}
+                height={height}
+                fill="none"
+                stroke="rgba(0,0,0,0.25)"
+                strokeWidth={1}
+            />
         </g>
     );
 };
