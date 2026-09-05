@@ -56,77 +56,90 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 // Custom SVG component to render 3D bars
 const Custom3DBar = (props) => {
-    const { fill, x, y, width, height } = props;
-    const depth = 10; // Slightly deeper for more 3D feel
+    const { fill, x, y, width, height, index } = props;
+    const depth = 12; // deeper for stronger 3D
 
-    // Prevent rendering artifacts for 0 values
     if (!height || height <= 0) return null;
 
-    // Derive shades from the base fill
-    // If fill is a hex like "#3b82f6", we can lighten/darken it.
-    // For simplicity, we’ll use fixed overlays; you can replace with dynamic colors if needed.
-    const topColor = "white";
-    const sideColor = "rgba(0,0,0,0.25)";
-    const frontHighlight = "rgba(255,255,255,0.15)";
+    // Create unique gradient IDs per bar to avoid clashes
+    const gradFrontId = `gradFront-${index}`;
+    const gradTopId = `gradTop-${index}`;
+    const gradSideId = `gradSide-${index}`;
+
+    // Assume fill is something like "#3b82f6" or "rgb(...)".
+    // We'll use it directly and build gradients around it.
+    // For more control, you can precompute light/dark variants.
 
     return (
         <g>
-            {/* Top Face - lighter to simulate light from above */}
+            {/* Define gradients for this bar */}
+            <defs>
+                {/* Front face gradient: top lighter, bottom darker */}
+                <linearGradient id={gradFrontId} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="white" stopOpacity="0.35" />
+                    <stop offset="40%" stopColor={fill} stopOpacity="0.9" />
+                    <stop offset="100%" stopColor={fill} stopOpacity="1" />
+                </linearGradient>
+
+                {/* Top face gradient: left to right slight shine */}
+                <linearGradient id={gradTopId} x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="white" stopOpacity="0.6" />
+                    <stop offset="50%" stopColor={fill} stopOpacity="0.9" />
+                    <stop offset="100%" stopColor={fill} stopOpacity="0.7" />
+                </linearGradient>
+
+                {/* Side face gradient: top to bottom darker */}
+                <linearGradient id={gradSideId} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={fill} stopOpacity="0.7" />
+                    <stop offset="100%" stopColor="black" stopOpacity="0.35" />
+                </linearGradient>
+            </defs>
+
+            {/* Top Face */}
             <path
                 d={`M${x},${y} 
                    L${x + depth},${y - depth} 
                    L${x + width + depth},${y - depth} 
                    L${x + width},${y} Z`}
-                fill={fill}
-                opacity={0.9}
-            />
-            <path
-                d={`M${x},${y} 
-                   L${x + depth},${y - depth} 
-                   L${x + width + depth},${y - depth} 
-                   L${x + width},${y} Z`}
-                fill={topColor}
-                opacity={0.35}
+                fill={`url(#${gradTopId})`}
             />
 
-            {/* Right Side Face - darker for depth */}
+            {/* Right Side Face */}
             <path
                 d={`M${x + width},${y} 
                    L${x + width + depth},${y - depth} 
                    L${x + width + depth},${y + height - depth} 
                    L${x + width},${y + height} Z`}
-                fill={fill}
-                opacity={0.85}
-            />
-            <path
-                d={`M${x + width},${y} 
-                   L${x + width + depth},${y - depth} 
-                   L${x + width + depth},${y + height - depth} 
-                   L${x + width},${y + height} Z`}
-                fill={sideColor}
-                opacity={0.6}
+                fill={`url(#${gradSideId})`}
             />
 
             {/* Front Face */}
-            <rect x={x} y={y} width={width} height={height} fill={fill} />
-
-            {/* Subtle front highlight (top edge) */}
             <rect
                 x={x}
                 y={y}
                 width={width}
-                height={Math.max(4, height * 0.08)}
-                fill={frontHighlight}
+                height={height}
+                fill={`url(#${gradFrontId})`}
             />
 
-            {/* Optional thin border for crispness */}
+            {/* Specular highlight stripe near the top of the front face */}
+            <rect
+                x={x}
+                y={y}
+                width={width}
+                height={Math.max(6, height * 0.1)}
+                fill="white"
+                opacity={0.18}
+            />
+
+            {/* Subtle inner border for crisp edges */}
             <rect
                 x={x}
                 y={y}
                 width={width}
                 height={height}
                 fill="none"
-                stroke="rgba(0,0,0,0.25)"
+                stroke="rgba(0,0,0,0.35)"
                 strokeWidth={1}
             />
         </g>
