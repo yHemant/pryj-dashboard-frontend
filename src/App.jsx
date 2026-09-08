@@ -42,7 +42,7 @@ export default function App() {
     startMonth: '2023-01-01',
     endMonth: '2026-12-31',
     datePreset: 'all', // 'all' | '12m' | '6m'
-    metric: 'total_duty_hrs',
+    metric: '',
     chartType: 'bar'
   });
 
@@ -78,10 +78,6 @@ export default function App() {
     getHQs()
       .then(res => {
         setHqs(res.data || []);
-        // Automatically select first HQ if available to make testing seamless
-        if (res.data && res.data.length > 0 && !filters.hq) {
-          setFilters(prev => ({ ...prev, hq: res.data[0] }));
-        }
       })
       .catch(err => console.error("Failed to fetch HQs:", err));
   }, []);
@@ -91,11 +87,7 @@ export default function App() {
       getCLIs(filters.hq)
         .then(res => {
           setClis(res.data || []);
-          if (res.data && res.data.length > 0) {
-            setFilters(prev => ({ ...prev, cli: res.data[0].cli_id }));
-          } else {
-            setFilters(prev => ({ ...prev, cli: '' }));
-          }
+          setFilters(prev => ({ ...prev, cli: '' }));
         })
         .catch(err => console.error("Failed to fetch CLIs:", err));
     } else {
@@ -271,6 +263,7 @@ export default function App() {
                 onChange={(e) => setFilters({ ...filters, metric: e.target.value })}
                 className="w-full glass-input rounded-xl px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition-all cursor-pointer"
               >
+                <option value="">Select Metric...</option>
                 {METRICS.map(m => (
                   <option key={m.key} value={m.key}>{m.label}</option>
                 ))}
@@ -430,6 +423,16 @@ export default function App() {
                 data={data}
                 cliInfo={{ cli_id: filters.cli, cli_name: cliDisplayName }}
               />
+            ) : !filters.metric ? (
+              <div className="glass-panel border-2 border-dashed border-slate-300/80 rounded-3xl p-10 text-center my-4 shadow-sm">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-200 mx-auto flex items-center justify-center mb-3 shadow-xs">
+                  <BarChart3 size={24} />
+                </div>
+                <h3 className="text-base font-bold text-slate-800 mb-1">Select a Performance Metric</h3>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                  Choose a metric from the dropdown above to view the graphical trend, or select &quot;ALL METRICS&quot; to display all charts at once.
+                </p>
+              </div>
             ) : (
               <ChartViewer
                 data={data}
