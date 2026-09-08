@@ -183,7 +183,7 @@ const ModernDataLabel = ({ x, y, value, metricKey, isBar = false }) => {
     );
 };
 
-export default function ChartViewer({ data, chartType, selectedMetric }) {
+export default function ChartViewer({ data, chartType = 'bar', selectedMetric }) {
     const metricsToRender = selectedMetric === 'ALL' ? METRICS : METRICS.filter(m => m.key === selectedMetric);
     
     // Space condition: If points > 7 (or > 5 in multi-chart grid), switch tick alignment from horizontal to vertical

@@ -43,7 +43,7 @@ export default function App() {
     endMonth: '2026-12-31',
     datePreset: 'all', // 'all' | '12m' | '6m'
     metric: 'total_duty_hrs',
-    chartType: 'line'
+    chartType: 'bar'
   });
 
   const fetchData = async () => {
