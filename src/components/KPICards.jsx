@@ -20,7 +20,7 @@ export default function KPICards({ data }) {
   const fpRatio = totalDuty > 0 ? Math.round((totalFP / totalDuty) * 100) : 0;
 
   const totalDFC = data.reduce((acc, r) => acc + (r.dfc_fp || 0), 0);
-  const avgPctDFC = data.length > 0 
+  const avgPctDFC = data.length > 0
     ? Math.round(data.reduce((acc, r) => acc + (r.pct_dfc_fp || 0), 0) / data.length)
     : 0;
 
@@ -54,7 +54,7 @@ export default function KPICards({ data }) {
           </span>
         </div>
         <p className="text-xs text-slate-500 mb-3">Total Duty: <span className="font-semibold text-slate-700">{formatHours(totalDuty)}</span></p>
-        
+
         {/* Day vs Night micro breakdown */}
         <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
           <span className="flex items-center gap-1">
@@ -81,7 +81,7 @@ export default function KPICards({ data }) {
           </span>
         </div>
         <p className="text-xs text-slate-500 mb-3">Dedicated Freight Corridor Footplate</p>
-        
+
         <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
           <span>Target Adherence</span>
           <span className="font-medium text-emerald-600">{avgPctDFC >= 25 ? 'Optimal' : 'Standard'}</span>
@@ -101,7 +101,7 @@ export default function KPICards({ data }) {
           <span className="text-xs font-medium text-slate-500">Checks</span>
         </div>
         <p className="text-xs text-slate-500 mb-3">IPAMS Ambush: <span className="font-semibold text-slate-700">{totalIPAMS}</span></p>
-        
+
         <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
           <span className="text-slate-500">Abnormalities</span>
           <span className={`font-semibold ${totalAbnormalities > 0 ? 'text-amber-600' : 'text-slate-600'}`}>
@@ -123,13 +123,13 @@ export default function KPICards({ data }) {
             {totalDues}
           </span>
           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${totalDues > 0 ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}>
-            {totalDues > 0 ? 'Action Needed' : 'All Clear'}
+            {totalDues > 0 ? 'Full Beat Due(LP+ALP)' : 'All Clear'}
           </span>
         </div>
         <p className="text-xs text-slate-500 mb-3">
           Latest status ({formatMonthYear(latestRecord.month)})
         </p>
-        
+
         <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
           <span>Grading: <strong className="text-slate-800">{gradingDue}</strong></span>
           <span>Counseling: <strong className="text-slate-800">{counselingDue}</strong></span>
